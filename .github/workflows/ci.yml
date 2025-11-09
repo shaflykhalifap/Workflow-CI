@@ -1,0 +1,39 @@
+name: MLflow CI Workflow
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:  # bisa dijalankan manual dari tab Actions
+
+jobs:
+  build-train-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout kode dari repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Step 2: Setup Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+
+      # Step 3: Install Miniconda
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: carprice-ml
+          environment-file: MLProject/conda.yaml
+          python-version: 3.12
+          auto-activate-base: false
+
+      # Step 4: Jalankan MLflow Project
+      - name: Run MLflow project
+        shell: bash -l {0}
+        run: |
+          echo "🚀 Starting MLflow training..."
+          mlflow run MLProject/ \
+            -P data_path=car_price_preprocessed.csv 
+
